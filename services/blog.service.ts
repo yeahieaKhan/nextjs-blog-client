@@ -12,4 +12,16 @@ export const blogService = {
       return { data: null, error: { message: "Something went worng" } };
     }
   },
+
+  // single blog get
+
+  getSingleBlogById: async function (id: string) {
+    try {
+      const res = await fetch(`${API_URL}/post/${id}`);
+      const data = await res.json();
+      return { data: data, error: null };
+    } catch (error) {
+      return { data: null, error: { message: "Something went worng" } };
+    }
+  },
 };
