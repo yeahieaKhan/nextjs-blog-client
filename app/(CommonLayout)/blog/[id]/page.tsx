@@ -18,19 +18,34 @@
 
 // export default SingleBlogs;
 
-import { blogService } from "@/services/blog.service";
 import React from "react";
+import { blogService } from "@/services/blog.service";
+import { BlogPost } from "@/type";
 
-const SingleBlogs = async ({ params }: { params: { id: string } }) => {
-  const { id } = await params;
+export async function generateStaticParams() {
+  const { data } = await blogService.getAllPost();
+
+  const blogs = data?.data || [];
+
+  return blogs.slice(0, 3).map((blog: BlogPost) => ({
+    id: blog.id,
+  }));
+}
+
+const SingleBlogs = async ({ params }: { params: Promise<{ id: string }> }) => {
+  const { id } = await params; // ✅ Next.js 15 fix
 
   const response = await blogService.getSingleBlogById(id);
-  const post = response.data.data; // ⚠️ important
+  const post = response?.data?.data;
+
   console.log("post data fetched", post);
 
   if (!post) {
     return <div>No Post Found</div>;
   }
+
+  const comments = post?.comments || [];
+  const tags = post?.tags || [];
 
   return (
     <div className="max-w-3xl mx-auto p-5">
@@ -57,23 +72,28 @@ const SingleBlogs = async ({ params }: { params: { id: string } }) => {
 
       {/* Tags */}
       <div className="flex flex-wrap gap-2 mb-4">
-        {post.tags.map((tag: string, index: number) => (
-          <span
-            key={index}
-            className="bg-gray-200 px-3 py-1 rounded-full text-sm"
-          >
-            #{tag}
-          </span>
-        ))}
+        {tags.length === 0 ? (
+          <p>No tags</p>
+        ) : (
+          tags.map((tag: string, index: number) => (
+            <span
+              key={index}
+              className="bg-gray-200 px-3 py-1 rounded-full text-sm"
+            >
+              #{tag}
+            </span>
+          ))
+        )}
       </div>
 
       {/* Comments */}
       <div>
         <h2 className="text-xl font-semibold mb-2">Comments</h2>
-        {post.comments.length === 0 ? (
+
+        {comments.length === 0 ? (
           <p>No comments yet</p>
         ) : (
-          post.comments.map((comment: any, i: number) => (
+          comments.map((comment: any, i: number) => (
             <div key={i} className="border p-2 mb-2 rounded">
               {comment.text}
             </div>
