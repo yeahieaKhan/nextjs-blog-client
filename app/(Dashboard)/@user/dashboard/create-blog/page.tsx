@@ -1,7 +1,11 @@
-import React from "react";
+import CreateBlogFormServer from "@/components/modules/user/createBlog/CreateBlogFormServer";
 
 const CreateBlog = () => {
-  return <div>THis is create blog</div>;
+  return (
+    <div>
+      <CreateBlogFormServer></CreateBlogFormServer>
+    </div>
+  );
 };
 
 export default CreateBlog;
