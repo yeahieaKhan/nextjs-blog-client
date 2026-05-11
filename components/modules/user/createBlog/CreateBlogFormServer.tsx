@@ -14,13 +14,42 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { cookies } from "next/headers";
 
 const CreateBlogFormServer = () => {
   const crateBlog = async (formData: FormData) => {
     "use server";
 
     const title = formData.get("title")?.toString();
-    console.log(title);
+    const category = formData.get("category")?.toString();
+    const description = formData.get("description")?.toString();
+    const content = formData.get("content")?.toString();
+    const tags = formData.get("tags")?.toString();
+
+    const blogData = {
+      title,
+      category,
+      description,
+      content,
+      tags: tags
+        ?.split(",")
+        .map((item) => item.trim())
+        .filter((item) => item !== ""),
+    };
+
+    // data send to backend
+    const cookieStore = await cookies();
+
+    const res = await fetch("http://localhost:5000/post", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        cookie: cookieStore.toString(),
+      },
+      body: JSON.stringify(blogData),
+    });
+
+    console.log(res);
   };
 
   return (
@@ -41,28 +70,18 @@ const CreateBlogFormServer = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="slug">Slug</Label>
-              <Input name="slug" id="slug" />
-            </div>
-
-            <div className="space-y-2">
               <Label htmlFor="category">Category</Label>
               <Input name="category" id="category" />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="image">Image URL</Label>
-              <Input name="image" id="image" />
-            </div>
-
-            <div className="space-y-2">
               <Label htmlFor="description">Short Description</Label>
-              <Textarea></Textarea>
+              <Textarea name="description"></Textarea>
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="content">Content</Label>
-              <textarea name="content" id="content" rows={10} />
+              <Textarea name="content"></Textarea>
             </div>
 
             <div className="space-y-2">
