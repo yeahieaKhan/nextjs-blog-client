@@ -12,44 +12,57 @@ import {
 } from "@/components/ui/card";
 
 import { Input } from "@/components/ui/input";
+
 import { Label } from "@/components/ui/label";
+
 import { Textarea } from "@/components/ui/textarea";
+
 import { cookies } from "next/headers";
 
 const CreateBlogFormServer = () => {
-  const crateBlog = async (formData: FormData) => {
+  // SERVER ACTION
+  const createBlog = async (formData: FormData) => {
     "use server";
 
+    // get form values
     const title = formData.get("title")?.toString();
-    const category = formData.get("category")?.toString();
-    const description = formData.get("description")?.toString();
     const content = formData.get("content")?.toString();
+    const thumbnail = formData.get("thumbnail")?.toString();
     const tags = formData.get("tags")?.toString();
 
+    // create payload
     const blogData = {
       title,
-      category,
-      description,
       content,
+      thumbnail,
+      isFeatured: true,
+      status: "PUBLISHED",
       tags: tags
         ?.split(",")
         .map((item) => item.trim())
         .filter((item) => item !== ""),
     };
 
-    // data send to backend
-    const cookieStore = await cookies();
+    try {
+      // get cookies
+      const cookieStore = await cookies();
 
-    const res = await fetch("http://localhost:5000/post", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        cookie: cookieStore.toString(),
-      },
-      body: JSON.stringify(blogData),
-    });
+      // send data to backend
+      const res = await fetch("http://localhost:5000/post", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          cookie: cookieStore.toString(),
+        },
+        body: JSON.stringify(blogData),
+      });
 
-    console.log(res);
+      const data = await res.json();
+
+      console.log("SUCCESS:", data);
+    } catch (error) {
+      console.log("ERROR:", error);
+    }
   };
 
   return (
@@ -57,42 +70,68 @@ const CreateBlogFormServer = () => {
       <Card className="w-full max-w-2xl mx-auto">
         <CardHeader>
           <CardTitle>Create AI Blog</CardTitle>
+
           <CardDescription>
             Write and publish your AI related article.
           </CardDescription>
         </CardHeader>
 
         <CardContent>
-          <form id="blog-form" action={crateBlog} className="space-y-6">
+          <form id="blog-form" action={createBlog} className="space-y-6">
+            {/* TITLE */}
             <div className="space-y-2">
               <Label htmlFor="title">Blog Title</Label>
-              <Input name="title" id="title" />
+
+              <Input
+                type="text"
+                name="title"
+                id="title"
+                placeholder="Enter blog title"
+                required
+              />
             </div>
 
+            {/* THUMBNAIL */}
             <div className="space-y-2">
-              <Label htmlFor="category">Category</Label>
-              <Input name="category" id="category" />
+              <Label htmlFor="thumbnail">Thumbnail URL</Label>
+
+              <Input
+                type="text"
+                name="thumbnail"
+                id="thumbnail"
+                placeholder="https://example.com/image.jpg"
+                required
+              />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="description">Short Description</Label>
-              <Textarea name="description"></Textarea>
-            </div>
-
+            {/* CONTENT */}
             <div className="space-y-2">
               <Label htmlFor="content">Content</Label>
-              <Textarea name="content"></Textarea>
+
+              <Textarea
+                name="content"
+                id="content"
+                placeholder="Write your blog content..."
+                className="min-h-[150px]"
+                required
+              />
             </div>
 
+            {/* TAGS */}
             <div className="space-y-2">
               <Label htmlFor="tags">Tags</Label>
-              <Input name="tags" id="tags" />
+
+              <Input
+                type="text"
+                name="tags"
+                id="tags"
+                placeholder="react,nextjs,prisma"
+              />
             </div>
           </form>
         </CardContent>
 
         <CardFooter>
-          {/* ✅ Submit Button */}
           <Button type="submit" form="blog-form" className="w-full">
             Submit Blog
           </Button>

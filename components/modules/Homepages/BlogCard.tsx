@@ -14,7 +14,7 @@ import { BlogPost } from "@/type";
 export default function BlogCard({ post }: { post: BlogPost }) {
   return (
     <Card className="h-full overflow-hidden border-none shadow-md transition-all duration-300 pb-2">
-      <div className="relative h-56 w-full overflow-hidden">
+      {/* <div className="relative h-56 w-full overflow-hidden">
         {post.thumbnail ? (
           <Image
             src={post.thumbnail}
@@ -27,7 +27,7 @@ export default function BlogCard({ post }: { post: BlogPost }) {
             No Image
           </div>
         )}
-      </div>
+      </div> */}
 
       <CardHeader className="pb-2">
         <CardTitle className="line-clamp-2 text-xl font-bold transition-colors group-hover:text-primary">
